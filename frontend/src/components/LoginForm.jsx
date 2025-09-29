@@ -2,9 +2,12 @@
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../usecases/loginUser";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const { login } = useAuth();
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -14,7 +17,8 @@ export default function LoginForm() {
     try {
       const { token, user } = await loginUser(email, password);
       login(user, token); // Guardar en contexto + localStorage
-      alert("Login exitoso ");
+      //   alert("Login exitoso ");
+      router.push("/dashboard");
     } catch (err) {
       console.error(err);
       setError("Credenciales inválidas");
