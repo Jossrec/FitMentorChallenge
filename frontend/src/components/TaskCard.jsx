@@ -1,0 +1,53 @@
+"use client";
+import { FaBalanceScale } from "react-icons/fa";
+import PersonIcon from "@mui/icons-material/Person";
+
+export default function TaskCard({
+  idTarea,
+  title,
+  asignadoA,
+  prioridad,
+  puntosHistoria,
+  onClick,
+}) {
+  const colorPorPrioridad = {
+    Alta: "bg-red-500",
+    Media: "bg-orange-400",
+    Baja: "bg-yellow-300",
+  };
+
+  return (
+    <div
+      onClick={onClick}
+      className="relative p-3 bg-gray-50 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition"
+    >
+      {/* Peso o puntos historia */}
+      {puntosHistoria !== undefined && (
+        <span className="absolute top-2 right-2 bg-blue-100 text-blue-700 text-xs font-semibold px-2 py-0.5 rounded flex items-center">
+          <FaBalanceScale className="mr-1" size={14} />
+          {Number(puntosHistoria).toFixed(0)}
+        </span>
+      )}
+
+      {/* Título */}
+      <p className="font-semibold text-sm mb-1 line-clamp-2 text-gray-700">{title}</p>
+
+      {/* Asignado */}
+      <span className="text-xs text-gray-500 flex items-center">
+        <PersonIcon sx={{ fontSize: 16, marginRight: "4px" }} />
+        {asignadoA || "Sin asignar"}
+      </span>
+
+      {/* Prioridad */}
+      {prioridad && (
+        <div
+          className={`absolute bottom-2 right-2 px-2 py-0.5 text-xs text-white rounded-full font-semibold ${
+            colorPorPrioridad[prioridad] || "bg-gray-300"
+          }`}
+        >
+          {prioridad}
+        </div>
+      )}
+    </div>
+  );
+}
