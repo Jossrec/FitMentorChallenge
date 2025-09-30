@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useAuth } from "../../context/AuthContext";
 import Topbar from "../../components/Topbar";
 import TaskModal from "../../components/TaskModal";
@@ -11,6 +12,7 @@ import {
   deleteTaskServer
 } from "../../usecases/taskService";
 import { loadLocalTasks, saveLocalTasks } from "../../utils/storage";
+
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -106,6 +108,43 @@ export default function DashboardPage() {
   };
 
 
+  const onDragEnd = async (result) => {
+  const { destination, source, draggableId } = result;
+  if (!destination) return;
+
+  const from = source.droppableId;
+  const to = destination.droppableId;
+  if (from === to) return; // si solo cambias de orden dentro de la misma columna (por ahora lo ignoramos)
+
+  // Encuentra la tarea
+  const task = tasks.find((t) => String(t.id) === String(draggableId));
+  if (!task) return;
+
+  const updated = { ...task, status: to };
+
+  // Optimistic UI: actualiza inmediatamente
+  setTasks((prev) => prev.map((t) => (t.id === task.id ? updated : t)));
+
+  // Sync con backend (solo si es id real numérico)
+  try {
+    if (typeof task.id === "number") {
+      const patch = {
+        title: updated.title,
+        description: updated.description ?? null,
+        priority: updated.priority ?? "Media",
+        storyPoints: Number(updated.storyPoints) || 1,
+        status: updated.status,
+      };
+      await updateTaskServer(task.id, patch);
+    }
+  } catch (e) {
+    // Revertir si falla
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? { ...t, status: from } : t)));
+    console.error("Error actualizando status en server:", e.message);
+  }
+};
+
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Topbar />
@@ -126,76 +165,148 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {/* Kanban con TaskCard */}
-      <div className="grid grid-cols-3 gap-4 p-6">
-        {/* Pendiente */}
-        <div className="bg-white shadow rounded-lg p-4">
-          <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
-          <div className="space-y-2">
-            {tasks
-              .filter((t) => t.status === "PENDIENTE")
-              .map((t) => (
-                <TaskCard
-                  key={t.id}
-                  idTarea={`T-${t.id}`}
-                  title={t.title}
-                  asignadoA={t.asignadoA}
-                  prioridad={t.priority}
-                  puntosHistoria={t.storyPoints}
-                  onClick={() => {
-                    setSelectedTask(t);
-                    setMode("edit");
-                    setShowModal(true);
-                  }}
-                />
-              ))}
-          </div>
-        </div>
+      {/* Kanban con Drag & Drop */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="grid grid-cols-3 gap-4 p-6">
+          {/* Pendiente */}
+          <Droppable droppableId="PENDIENTE">
+            {(provided) => (
+              <div
+                className="bg-white shadow rounded-lg p-4"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
+                <div className="space-y-2">
+                  {tasks
+                    .filter((t) => t.status === "PENDIENTE")
+                    .map((t, index) => (
+                      <Draggable
+                        key={t.id}
+                        draggableId={String(t.id)}
+                        index={index}
+                      >
+                        {(prov) => (
+                          <div
+                            ref={prov.innerRef}
+                            {...prov.draggableProps}
+                            {...prov.dragHandleProps}
+                          >
+                            <TaskCard
+                              idTarea={`T-${t.id}`}
+                              title={t.title}
+                              asignadoA={t.asignadoA}
+                              prioridad={t.priority}
+                              puntosHistoria={t.storyPoints}
+                              onClick={() => {
+                                setSelectedTask(t);
+                                setMode("edit");
+                                setShowModal(true);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              </div>
+            )}
+          </Droppable>
 
-        {/* En curso */}
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="font-bold mb-3 text-yellow-600">En curso</h3>
-          {tasks
-            .filter((t) => t.status === "EN_CURSO")
-            .map((t) => (
-              <TaskCard
-                key={t.id}
-                idTarea={`T-${t.id}`}
-                title={t.title}
-                asignadoA={t.asignadoA}
-                prioridad={t.priority}
-                puntosHistoria={t.storyPoints}
-                onClick={() => {
-                  setSelectedTask(t);
-                  setMode("edit");
-                  setShowModal(true);
-                }}
-              />
-            ))}
-        </div>
+          {/* En curso */}
+          <Droppable droppableId="EN_CURSO">
+            {(provided) => (
+              <div
+                className="bg-white shadow rounded p-4"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                <h3 className="font-bold mb-3 text-yellow-600">En curso</h3>
+                <div className="space-y-2">
+                  {tasks
+                    .filter((t) => t.status === "EN_CURSO")
+                    .map((t, index) => (
+                      <Draggable
+                        key={t.id}
+                        draggableId={String(t.id)}
+                        index={index}
+                      >
+                        {(prov) => (
+                          <div
+                            ref={prov.innerRef}
+                            {...prov.draggableProps}
+                            {...prov.dragHandleProps}
+                          >
+                            <TaskCard
+                              idTarea={`T-${t.id}`}
+                              title={t.title}
+                              asignadoA={t.asignadoA}
+                              prioridad={t.priority}
+                              puntosHistoria={t.storyPoints}
+                              onClick={() => {
+                                setSelectedTask(t);
+                                setMode("edit");
+                                setShowModal(true);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              </div>
+            )}
+          </Droppable>
 
-        {/* Finalizado */}
-        <div className="bg-white shadow rounded p-4">
-          <h3 className="font-bold mb-3 text-green-600">Finalizado</h3>
-          {tasks
-            .filter((t) => t.status === "FINALIZADO")
-            .map((t) => (
-              <TaskCard
-                key={t.id}
-                idTarea={`T-${t.id}`}
-                title={t.title}
-                asignadoA={t.asignadoA}
-                prioridad={t.priority}
-                puntosHistoria={t.storyPoints}
-                onClick={() => {
-                  setSelectedTask(t);
-                  setMode("edit");
-                  setShowModal(true);
-                }}
-              />
-            ))}
+          {/* Finalizado */}
+          <Droppable droppableId="FINALIZADO">
+            {(provided) => (
+              <div
+                className="bg-white shadow rounded p-4"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+              >
+                <h3 className="font-bold mb-3 text-green-600">Finalizado</h3>
+                <div className="space-y-2">
+                  {tasks
+                    .filter((t) => t.status === "FINALIZADO")
+                    .map((t, index) => (
+                      <Draggable
+                        key={t.id}
+                        draggableId={String(t.id)}
+                        index={index}
+                      >
+                        {(prov) => (
+                          <div
+                            ref={prov.innerRef}
+                            {...prov.draggableProps}
+                            {...prov.dragHandleProps}
+                          >
+                            <TaskCard
+                              idTarea={`T-${t.id}`}
+                              title={t.title}
+                              asignadoA={t.asignadoA}
+                              prioridad={t.priority}
+                              puntosHistoria={t.storyPoints}
+                              onClick={() => {
+                                setSelectedTask(t);
+                                setMode("edit");
+                                setShowModal(true);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </Draggable>
+                    ))}
+                  {provided.placeholder}
+                </div>
+              </div>
+            )}
+          </Droppable>
         </div>
-      </div>
+      </DragDropContext>
 
       {showModal && (
         <TaskModal

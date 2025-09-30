@@ -1,5 +1,5 @@
 "use client";
-import { FaBalanceScale } from "react-icons/fa";
+import { FaBalanceScale, FaUser } from "react-icons/fa";
 import PersonIcon from "@mui/icons-material/Person";
 
 export default function TaskCard({
