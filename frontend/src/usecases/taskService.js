@@ -17,3 +17,9 @@ export async function updateTaskServer(id, patch) {
   const res = await api.put(`/tasks/${id}`, patch);
   return res.data;
 }
+
+// Eliminar en el server
+export async function deleteTaskServer(id) {
+  const res = await api.delete(`/tasks/${id}`);
+  return res.data;
+}

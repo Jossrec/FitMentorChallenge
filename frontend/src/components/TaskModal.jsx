@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 export default function TaskModal({
   onClose,
   onSave,
+  onDelete,
   onUpdate,
   mode = "create",
   task = {},
@@ -86,19 +87,34 @@ export default function TaskModal({
           className="w-full border p-2 rounded mb-4 text-gray-600"
         />
 
-        <div className="flex justify-end space-x-2">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded border border-gray-400 text-gray-600"
-          >
-            Cancelar
-          </button>
-          <button
-            onClick={handleAction}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-          >
-            {mode === "create" ? "Crear tarea" : "Guardar cambios"}
-          </button>
+        <div className="flex justify-between items-center">
+          {/* Botón eliminar solo en modo edición */}
+          {mode === "edit" && (
+            <button
+              onClick={() => {
+                onDelete(task.id)
+                onClose();
+              }}
+              className="px-4 py-2 rounded border border-red-600 bg-red-100 text-red-600 hover:bg-red-200"
+            >
+              Eliminar
+            </button>
+          )}
+
+          <div className="flex space-x-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded border border-gray-400 text-gray-600"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleAction}
+              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+            >
+              {mode === "create" ? "Crear tarea" : "Guardar cambios"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

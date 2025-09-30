@@ -15,3 +15,7 @@ export async function updateTask(id, data) {
   const task = await prisma.task.update({ where: { id }, data });
   return new Task(task);
 }
+
+export async function deleteTask(id) {
+  return await prisma.task.delete({ where: { id } });
+}

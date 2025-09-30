@@ -8,6 +8,7 @@ import {
   fetchTasksServer,
   createTaskServer,
   updateTaskServer,
+  deleteTaskServer
 } from "../../usecases/taskService";
 import { loadLocalTasks, saveLocalTasks } from "../../utils/storage";
 
@@ -92,6 +93,18 @@ export default function DashboardPage() {
     }
     };
 
+    // === Eliminar tarea
+  const deleteTask = async (id) => {
+    // Optimistic UI (quitamos del estado inmediatamente)
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+
+    try {
+      await deleteTaskServer(id);
+    } catch (err) {
+      console.error("Error eliminando en server:", err.message);
+    }
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -116,25 +129,27 @@ export default function DashboardPage() {
       {/* Kanban con TaskCard */}
       <div className="grid grid-cols-3 gap-4 p-6">
         {/* Pendiente */}
-        <div className="bg-white shadow rounded p-4">
+        <div className="bg-white shadow rounded-lg p-4">
           <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
-          {tasks
-            .filter((t) => t.status === "PENDIENTE")
-            .map((t) => (
-              <TaskCard
-                key={t.id}
-                idTarea={`T-${t.id}`}
-                title={t.title}
-                asignadoA={t.asignadoA}
-                prioridad={t.priority}
-                puntosHistoria={t.storyPoints}
-                onClick={() => {
-                  setSelectedTask(t);
-                  setMode("edit");
-                  setShowModal(true);
-                }}
-              />
-            ))}
+          <div className="space-y-2">
+            {tasks
+              .filter((t) => t.status === "PENDIENTE")
+              .map((t) => (
+                <TaskCard
+                  key={t.id}
+                  idTarea={`T-${t.id}`}
+                  title={t.title}
+                  asignadoA={t.asignadoA}
+                  prioridad={t.priority}
+                  puntosHistoria={t.storyPoints}
+                  onClick={() => {
+                    setSelectedTask(t);
+                    setMode("edit");
+                    setShowModal(true);
+                  }}
+                />
+              ))}
+          </div>
         </div>
 
         {/* En curso */}
@@ -189,6 +204,7 @@ export default function DashboardPage() {
           onClose={() => setShowModal(false)}
           onSave={addTask}
           onUpdate={updateTask}
+          onDelete={deleteTask}
         />
       )}
     </div>
