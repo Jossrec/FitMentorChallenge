@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../usecases/loginUser";
 import { useRouter } from "next/navigation";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -11,13 +12,14 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { token, user } = await loginUser(email, password);
-      login(user, token); // Guardar en contexto + localStorage
-      //   alert("Login exitoso ");
+      login(user, token);
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
@@ -25,39 +27,135 @@ export default function LoginForm() {
     }
   };
 
+  // Placeholder para Google login
+  const handleGoogleLogin = () => {
+    console.log("Login con Google (pendiente de implementar)");
+  };
+
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-sm mx-auto mt-20 bg-white shadow-md rounded p-6"
-    >
-      <h2 className="text-xl font-bold mb-4 text-gray-700">Iniciar Sesión</h2>
+    <div className="flex h-screen bg-white">
+      {/* Columna izquierda: formulario */}
+      <div className="w-full md:w-1/2 flex flex-col justify-center items-center p-6 md:p-8 min-h-screen">
+        <div className="w-full max-w-md">
+          {/* Logo y nombre */}
+          <div className="flex items-center ">
+            <img 
+              src="/kanbanlogo.png" 
+              alt="Logo" 
+              className="w-30 h-20 mr-30 object-contain" 
+            />
+          </div>
+          <h1 className="text-2xl font-bold text-black mb-6">
+            Iniciar sesión
+          </h1>
 
-      {error && <p className="text-red-500 text-sm">{error}</p>}
+          {/* BOTÓN GOOGLE */}
+          <button
+            onClick={handleGoogleLogin}
+            type="button"
+            className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-800 font-medium py-2 rounded hover:bg-gray-100 transition mb-4"
+          >
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              className="w-5 h-5"
+            />
+            Ingresar o registrarse con Google
+          </button>
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full border p-2 rounded mb-3 placeholder-gray-500 text-gray-800"
-        required
-      />
+          {/* Separador con O */}
+          <div className="flex items-center mb-6">
+            <hr className="flex-grow border-gray-300" />
+            <span className="px-3 text-gray-500 font-semibold">O</span>
+            <hr className="flex-grow border-gray-300" />
+          </div>
 
-      <input
-        type="password"
-        placeholder="Contraseña"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full border p-2 rounded mb-3 placeholder-gray-500 text-gray-800"
-        required
-      />
+          {/* Error */}
+          {error && (
+            <p className="bg-red-100 text-red-600 text-sm p-2 rounded mb-4">
+              {error}
+            </p>
+          )}
 
-      <button
-        type="submit"
-        className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700"
-      >
-        Entrar
-      </button>
-    </form>
+          {/* FORMULARIO */}
+          <form onSubmit={handleSubmit}>
+            {/* Email */}
+            <label className="block text-gray-700">Usuario o correo</label>
+            <input
+              type="email"
+              placeholder="correo@ejemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded mt-1 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              required
+            />
+
+            {/* Password */}
+            <label className="block text-gray-700 mt-4">
+              Ingresa tu contraseña
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Ingresa tu contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded mt-1 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <LuEyeOff /> : <LuEye />}
+              </button>
+            </div>
+
+            {/* Remember me + link */}
+            <div className="flex items-center justify-between mt-4">
+              <label className="flex items-center text-gray-700">
+                <input
+                  type="checkbox"
+                  className="mr-2"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                Recuérdame
+              </label>
+              <a href="#" className="text-orange-500 text-sm">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+
+            {/* Botones */}
+            <button
+              type="submit"
+              className="w-full bg-orange-500 text-white p-2 rounded mt-6 hover:bg-orange-600 transition"
+            >
+              Iniciar sesión
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push("/register")}
+              className="w-full border border-orange-500 text-orange-500 p-2 rounded mt-4 hover:bg-orange-50 transition"
+            >
+              ¿No tienes cuenta? Regístrate
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Columna derecha: imagen (oculta en mobile) */}
+      <div className="hidden md:block md:w-1/2 h-64 md:h-full relative">
+        <div className="overflow-hidden h-full">
+          <img
+            src="/FondoLoginKanBan.png"
+            alt="Fondo"
+            className="w-full h-full object-cover object-center scale-125"
+          />
+        </div>
+      </div>
+    </div>
   );
 }

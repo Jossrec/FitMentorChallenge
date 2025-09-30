@@ -3,5 +3,5 @@ import { loginController, registerController } from "../controllers/userControll
 
 const router = Router();
 router.post("/login", loginController);
-router.post("/register", registerController); // opcional para crear el primer usuario
+router.post("/register", registerController);
 export default router;
