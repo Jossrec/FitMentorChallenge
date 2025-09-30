@@ -27,7 +27,7 @@ export default function TaskModal({
     if (!title.trim()) return;
     const newTask = {
       ...task,
-      id: task.id || Date.now(), // si no existe id, se genera
+      id: mode === "create" ? Date.now() : task.id,
       title,
       description,
       priority,

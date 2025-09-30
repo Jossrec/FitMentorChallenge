@@ -4,6 +4,12 @@ import { useAuth } from "../../context/AuthContext";
 import Topbar from "../../components/Topbar";
 import TaskModal from "../../components/TaskModal";
 import TaskCard from "../../components/TaskCard";
+import {
+  fetchTasksServer,
+  createTaskServer,
+  updateTaskServer,
+} from "../../usecases/taskService";
+import { loadLocalTasks, saveLocalTasks } from "../../utils/storage";
 
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -12,23 +18,80 @@ export default function DashboardPage() {
   const [mode, setMode] = useState("create"); // "create" o "edit"
   const [selectedTask, setSelectedTask] = useState(null);
 
-  // cargar del localStorage
+  // cargar local
   useEffect(() => {
-    const saved = localStorage.getItem("tasks");
-    if (saved) setTasks(JSON.parse(saved));
+    setTasks(loadLocalTasks());
   }, []);
 
-  // guardar en localStorage
+  //guardar cambios en localStorage
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    saveLocalTasks(tasks);
   }, [tasks]);
 
-  // Crear tarea
-  const addTask = (task) => setTasks([...tasks, task]);
+  //hidratar desde el server
+  useEffect(() => {
+    (async () => {
+      try {
+        const serverTasks = await fetchTasksServer();
+        setTasks(serverTasks);
+      } catch (err) {
+        console.warn("No se pudo traer desde server:", err.message);
+      }
+    })();
+  }, []);
 
-  // Actualizar tarea
-  const updateTask = (updatedTask) =>
-    setTasks(tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)));
+  // === Crear tarea (local + backend)
+    const addTask = async (task) => {
+    // Optimistic UI
+    const tempId = `tmp-${Date.now()}`;
+    const optimisticTask = { ...task, id: tempId };
+    setTasks((prev) => [optimisticTask, ...prev]);
+
+    try {
+        // Limpiar el payload para que coincida con tu modelo
+        const { title, description, priority, storyPoints, status } = task;
+        const payload = {
+        title,
+        description: description ?? null,
+        priority,
+        storyPoints: Number(storyPoints),
+        status,
+        // si quieres relacionarlo con el usuario logueado
+        // userId: user.id  
+        };
+
+        const created = await createTaskServer(payload);
+
+        // Reemplazar el tmp por lo que devuelva el server
+        setTasks((prev) =>
+        prev.map((t) => (t.id === tempId ? created : t))
+        );
+    } catch (err) {
+        console.error("Error creando en server:", err.message);
+    }
+    };
+
+  // === Editar tarea
+    const updateTask = async (task) => {
+    setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
+    try {
+        const { id, title, description, priority, storyPoints, status } = task;
+
+        // Solo mandar lo que Prisma acepta
+        const cleanPatch = {
+        title,
+        description: description ?? null,
+        priority,
+        storyPoints: Number(storyPoints),
+        status,
+        };
+
+        await updateTaskServer(id, cleanPatch);
+    } catch (err) {
+        console.error("Error actualizando en server:", err.message);
+    }
+    };
+
 
   return (
     <div className="min-h-screen bg-gray-100">
