@@ -172,43 +172,56 @@ export default function DashboardPage() {
           <Droppable droppableId="PENDIENTE">
             {(provided) => (
               <div
-                className="bg-white shadow rounded-lg p-4"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
+                className="bg-white shadow rounded-lg p-4 p-4 flex flex-col"
               >
                 <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
-                <div className="space-y-2">
-                  {tasks
-                    .filter((t) => t.status === "PENDIENTE")
-                    .map((t, index) => (
-                      <Draggable
-                        key={t.id}
-                        draggableId={String(t.id)}
-                        index={index}
-                      >
-                        {(prov) => (
-                          <div
-                            ref={prov.innerRef}
-                            {...prov.draggableProps}
-                            {...prov.dragHandleProps}
+                {/* Contenedor scrollable */}
+                <div
+                  className="flex-1 overflow-x-auto max-h-[calc(100vh-200px)] p-2 border-2 border-dashed rounded"
+                >
+                  <div
+                    className="space-y-2 min-h-[60px]"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {tasks.filter((t) => t.status === "PENDIENTE").length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-6">
+                        Sin tareas, arrastra para cambiar de estado
+                      </p>
+                    ) : (
+                      tasks
+                        .filter((t) => t.status === "PENDIENTE")
+                        .map((t, index) => (
+                          <Draggable
+                            key={t.id}
+                            draggableId={String(t.id)}
+                            index={index}
                           >
-                            <TaskCard
-                              idTarea={`T-${t.id}`}
-                              title={t.title}
-                              asignadoA={t.asignadoA}
-                              prioridad={t.priority}
-                              puntosHistoria={t.storyPoints}
-                              onClick={() => {
-                                setSelectedTask(t);
-                                setMode("edit");
-                                setShowModal(true);
-                              }}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
+                            {(prov) => (
+                              <div
+                                ref={prov.innerRef}
+                                {...prov.draggableProps}
+                                {...prov.dragHandleProps}
+                              >
+                                <TaskCard
+                                  idTarea={`T-${t.id}`}
+                                  title={t.title}
+                                  asignadoA={t.asignadoA}
+                                  prioridad={t.priority}
+                                  puntosHistoria={t.storyPoints}
+                                  onClick={() => {
+                                    setSelectedTask(t);
+                                    setMode("edit");
+                                    setShowModal(true);
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))
+                    )}
+                      {provided.placeholder}
+                  </div>
                 </div>
               </div>
             )}
@@ -218,43 +231,56 @@ export default function DashboardPage() {
           <Droppable droppableId="EN_CURSO">
             {(provided) => (
               <div
-                className="bg-white shadow rounded p-4"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
+                className="bg-white shadow rounded p-4 flex flex-col"
               >
                 <h3 className="font-bold mb-3 text-yellow-600">En curso</h3>
-                <div className="space-y-2">
-                  {tasks
-                    .filter((t) => t.status === "EN_CURSO")
-                    .map((t, index) => (
-                      <Draggable
-                        key={t.id}
-                        draggableId={String(t.id)}
-                        index={index}
-                      >
-                        {(prov) => (
-                          <div
-                            ref={prov.innerRef}
-                            {...prov.draggableProps}
-                            {...prov.dragHandleProps}
-                          >
-                            <TaskCard
-                              idTarea={`T-${t.id}`}
-                              title={t.title}
-                              asignadoA={t.asignadoA}
-                              prioridad={t.priority}
-                              puntosHistoria={t.storyPoints}
-                              onClick={() => {
-                                setSelectedTask(t);
-                                setMode("edit");
-                                setShowModal(true);
-                              }}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
+                {/* Contenedor scrollable */}
+                <div
+                  className="flex-1 overflow-x-auto max-h-[calc(100vh-200px)] p-2 border-2 border-dashed rounded"
+                >
+                  <div
+                    className="space-y-2 min-h-[60px]"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {tasks.filter((t) => t.status === "EN_CURSO").length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-6">
+                        Sin tareas, arrastra para cambiar de estado
+                      </p>
+                    ) : (
+                    tasks
+                      .filter((t) => t.status === "EN_CURSO")
+                      .map((t, index) => (
+                        <Draggable
+                          key={t.id}
+                          draggableId={String(t.id)}
+                          index={index}
+                        >
+                          {(prov) => (
+                            <div
+                              ref={prov.innerRef}
+                              {...prov.draggableProps}
+                              {...prov.dragHandleProps}
+                            >
+                              <TaskCard
+                                idTarea={`T-${t.id}`}
+                                title={t.title}
+                                asignadoA={t.asignadoA}
+                                prioridad={t.priority}
+                                puntosHistoria={t.storyPoints}
+                                onClick={() => {
+                                  setSelectedTask(t);
+                                  setMode("edit");
+                                  setShowModal(true);
+                                }}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))
+                    )}
+                      {provided.placeholder}
+                  </div>
                 </div>
               </div>
             )}
@@ -264,43 +290,56 @@ export default function DashboardPage() {
           <Droppable droppableId="FINALIZADO">
             {(provided) => (
               <div
-                className="bg-white shadow rounded p-4"
-                ref={provided.innerRef}
-                {...provided.droppableProps}
+                className="bg-white shadow rounded p-4 flex flex-col"
               >
                 <h3 className="font-bold mb-3 text-green-600">Finalizado</h3>
-                <div className="space-y-2">
-                  {tasks
-                    .filter((t) => t.status === "FINALIZADO")
-                    .map((t, index) => (
-                      <Draggable
-                        key={t.id}
-                        draggableId={String(t.id)}
-                        index={index}
-                      >
-                        {(prov) => (
-                          <div
-                            ref={prov.innerRef}
-                            {...prov.draggableProps}
-                            {...prov.dragHandleProps}
-                          >
-                            <TaskCard
-                              idTarea={`T-${t.id}`}
-                              title={t.title}
-                              asignadoA={t.asignadoA}
-                              prioridad={t.priority}
-                              puntosHistoria={t.storyPoints}
-                              onClick={() => {
-                                setSelectedTask(t);
-                                setMode("edit");
-                                setShowModal(true);
-                              }}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                  {provided.placeholder}
+                {/* Contenedor scrollable */}
+                <div
+                  className="flex-1 overflow-x-auto max-h-[calc(100vh-200px)] p-2 border-2 border-dashed rounded"
+                >
+                  <div
+                    className="space-y-2 min-h-[60px]"
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                  >
+                    {tasks.filter((t) => t.status === "FINALIZADO").length === 0 ? (
+                      <p className="text-sm text-gray-400 text-center py-6">
+                        Sin tareas, arrastra para cambiar de estado
+                      </p>
+                    ) : (
+                    tasks
+                      .filter((t) => t.status === "FINALIZADO")
+                      .map((t, index) => (
+                        <Draggable
+                          key={t.id}
+                          draggableId={String(t.id)}
+                          index={index}
+                        >
+                          {(prov) => (
+                            <div
+                              ref={prov.innerRef}
+                              {...prov.draggableProps}
+                              {...prov.dragHandleProps}
+                            >
+                              <TaskCard
+                                idTarea={`T-${t.id}`}
+                                title={t.title}
+                                asignadoA={t.asignadoA}
+                                prioridad={t.priority}
+                                puntosHistoria={t.storyPoints}
+                                onClick={() => {
+                                  setSelectedTask(t);
+                                  setMode("edit");
+                                  setShowModal(true);
+                                }}
+                                  />
+                                </div>
+                              )}
+                            </Draggable>
+                          ))
+                      )}
+                        {provided.placeholder}
+                  </div>
                 </div>
               </div>
             )}
