@@ -18,16 +18,18 @@ model User {
 
 // Tarea del tablero
 model Task {
-  id        Int      @id @default(autoincrement())
-  title     String   @unique
-  status    Status   @default(PENDIENTE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userId Int?        // clave foránea
-  user   User?       @relation(fields: [userId], references: [id])
-
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  priority    String   @default("Media")
+  storyPoints Int      @default(1)
+  status      String   @default("PENDIENTE")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int?     // opcional por ahora
+  user        User?    @relation(fields: [userId], references: [id])
 }
+
 
 // Estado de las tareas
 enum Status {

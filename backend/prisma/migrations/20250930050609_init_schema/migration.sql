@@ -13,12 +13,14 @@ CREATE TABLE `User` (
 CREATE TABLE `Task` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(191) NOT NULL,
-    `status` ENUM('PENDIENTE', 'EN_CURSO', 'FINALIZADO') NOT NULL DEFAULT 'PENDIENTE',
+    `description` VARCHAR(191) NULL,
+    `priority` VARCHAR(191) NOT NULL DEFAULT 'Media',
+    `storyPoints` INTEGER NOT NULL DEFAULT 1,
+    `status` VARCHAR(191) NOT NULL DEFAULT 'PENDIENTE',
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
     `userId` INTEGER NULL,
 
-    UNIQUE INDEX `Task_title_key`(`title`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
