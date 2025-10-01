@@ -8,11 +8,13 @@ export default function TaskModal({
   onUpdate,
   mode = "create",
   task = {},
+  tasks = [],
 }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Media");
   const [storyPoints, setStoryPoints] = useState(1);
+  const [error, setError] = useState(null);
 
   // Si es edición, rellenamos con datos de la tarea
   useEffect(() => {
@@ -26,6 +28,18 @@ export default function TaskModal({
 
   const handleAction = () => {
     if (!title.trim()) return;
+    // Validar duplicados
+    const exists = tasks.some(
+      (t) =>
+        t.title.trim().toLowerCase() === title.trim().toLowerCase() &&
+        t.id !== task?.id // permitir si es edición de la misma tarea
+    );
+    if (exists) {
+      setError("Ya existe una tarea con ese nombre en este tablero.");
+    return;
+    }
+    setError(null); // limpiar error si todo bien
+
     const newTask = {
       ...task,
       id: mode === "create" ? Date.now() : task.id,
@@ -49,8 +63,12 @@ export default function TaskModal({
         <h2 className="text-lg font-bold mb-4 text-gray-600">
           {mode === "create" ? "Crear nueva Tarea" : "Editar Tarea"}
         </h2>
-
-        <label className="block mb-2 font-semibold text-gray-600">Título</label>
+        {error && (
+          <p className="bg-red-100 text-red-600 text-sm p-2 rounded mb-4">
+            {error}
+          </p>
+        )}
+        <label className="block mb-2 font-semibold text-gray-600">Título *<span className="text-red-500 text-xs "> (campo obligatorio)</span></label>
         <input
           type="text"
           placeholder="Título"

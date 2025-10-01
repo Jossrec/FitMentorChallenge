@@ -4,6 +4,7 @@ import { FaBalanceScale, FaUser } from "react-icons/fa";
 export default function TaskCard({
   idTarea,
   title,
+  description,
   prioridad,
   puntosHistoria,
   onClick,
@@ -17,7 +18,7 @@ export default function TaskCard({
   return (
     <div
       onClick={onClick}
-      className="relative p-3 bg-gray-50 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition"
+      className="relative p-3 bg-gray-50 border rounded-lg shadow-sm cursor-pointer hover:bg-gray-100 transition h-22"
     >
       {/* Peso o puntos historia */}
       {puntosHistoria !== undefined && (
@@ -29,6 +30,9 @@ export default function TaskCard({
 
       {/* Título */}
       <p className="font-semibold text-sm mb-1 line-clamp-2 text-gray-700">{title}</p>
+
+      {/*descripción*/}
+      <p className="font-normal text-sm mb-1 line-clamp-2 text-gray-400 ">{description}</p>
 
       {/* Prioridad */}
       {prioridad && (

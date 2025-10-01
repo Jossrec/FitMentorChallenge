@@ -16,7 +16,11 @@ export default function Topbar() {
   return (
     <header className="w-full bg-white shadow-md px-6 py-3 flex justify-between items-center">
       {/* Logo / título */}
-      <h1 className="text-xl font-bold text-blue-600">Kanban App</h1>
+      <img
+            src="/kanbanLogo.png"
+            alt="Fondo"
+            className="w-30 h-10 object-cover object-center scale-125"
+          />
 
       {/* Avatar */}
       <div className="relative">

@@ -29,6 +29,8 @@ export default function DashboardPage() {
   const [boards, setBoards] = useState([]);
   const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [showBoardModal, setShowBoardModal] = useState(false);
+  const selectedBoard = boards.find((b) => b.id === selectedBoardId);
+
 
 
   
@@ -88,7 +90,7 @@ export default function DashboardPage() {
   // === Crear tarea
   const addTask = async (task) => {
     if (!selectedBoardId) return;
-
+    
     const tempId = `tmp-${Date.now()}`;
     const optimisticTask = { ...task, id: tempId };
     setTasks((prev) => [optimisticTask, ...prev]);
@@ -109,10 +111,12 @@ export default function DashboardPage() {
         prev.map((t) => (t.id === tempId ? created : t))
       );
     } catch (err) {
-      console.error("Error creando en server:", err.message);
+      console.error(err);
+      setError("Nombre de tarea ya existe");
     }
   };
 
+  
   // === Editar tarea
   const updateTask = async (task) => {
     setTasks((prev) => prev.map((t) => (t.id === task.id ? task : t)));
@@ -195,11 +199,12 @@ export default function DashboardPage() {
 
 
   return (
+    
     <div className="min-h-screen bg-gray-100">
       <Topbar />
       <div className="p-6 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">
-          Bienvenido <span className="text-blue-600">{user?.email}</span>
+        <h2 className="text-2xl font-semibold text-gray-800">
+          {selectedBoard? selectedBoard.name: "Sin tablero"}
         </h2>
         <div className="flex items-center space-x-4">
           <select
@@ -211,7 +216,7 @@ export default function DashboardPage() {
                 setSelectedBoardId(Number(e.target.value));
               }
             }}
-            className="border rounded px-2 py-1 text-gray-500"
+            className="border rounded px-2 py-1 text-gray-500 h-10"
           >
             {boards.map((b) => (
               <option key={b.id} value={b.id}>
@@ -234,11 +239,11 @@ export default function DashboardPage() {
       </div>
       {/* Kanban con Drag & Drop */}
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-3 gap-4 p-6 items-start">
+        <div className="grid grid-cols-3 gap-4 p-6 items-start ">
           {/* Pendiente */}
           <Droppable droppableId="PENDIENTE">
             {(provided, snapshot) => (
-              <div className="bg-white shadow rounded-lg p-4 h-auto">
+              <div className="bg-white shadow rounded-lg p-4 h-auto ">
                 <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
                 {/* Contenedor scrollable */}
                 <div
@@ -271,6 +276,7 @@ export default function DashboardPage() {
                                 idTarea={`T-${t.id}`}
                                 title={t.title}
                                 prioridad={t.priority}
+                                description={t.description}
                                 puntosHistoria={t.storyPoints}
                                 onClick={() => {
                                   setSelectedTask(t);
@@ -326,6 +332,7 @@ export default function DashboardPage() {
                                 idTarea={`T-${t.id}`}
                                 title={t.title}
                                 prioridad={t.priority}
+                                description={t.description}
                                 puntosHistoria={t.storyPoints}
                                 onClick={() => {
                                   setSelectedTask(t);
@@ -381,6 +388,7 @@ export default function DashboardPage() {
                                 idTarea={`T-${t.id}`}
                                 title={t.title}
                                 prioridad={t.priority}
+                                description={t.description}
                                 puntosHistoria={t.storyPoints}
                                 onClick={() => {
                                   setSelectedTask(t);
@@ -404,6 +412,7 @@ export default function DashboardPage() {
         <TaskModal
           mode={mode}
           task={selectedTask}
+          tasks={tasks}
           onClose={() => setShowModal(false)}
           onSave={addTask}
           onUpdate={updateTask}
