@@ -23,13 +23,13 @@ model Task {
   description String?
   priority    String   @default("Media")
   storyPoints Int      @default(1)
-  status      String   @default("PENDIENTE")
+  status      Status   @default(PENDIENTE)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  userId      Int?     // opcional por ahora
-  user        User?    @relation(fields: [userId], references: [id])
-}
 
+  userId Int?
+  user   User?    @relation(fields: [userId], references: [id])
+}
 
 // Estado de las tareas
 enum Status {

@@ -14,9 +14,25 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 👀 Nuevo estado
 
   const passwordsMatch = password === confirmPassword;
-  const canSubmit = password.length > 0 && passwordsMatch;
+
+  // Validaciones
+  const validations = {
+    length: password.length >= 8,
+    number: /\d/.test(password),
+    uppercase: /[A-Z]/.test(password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  };
+
+  const allValid =
+    validations.length &&
+    validations.number &&
+    validations.uppercase &&
+    validations.special;
+
+  const canSubmit = allValid && passwordsMatch;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,6 +44,7 @@ export default function RegisterForm() {
       router.push("/dashboard");
     } catch (err) {
       console.error("Error en registro:", err.message);
+      setError(err.message);
     }
   };
 
@@ -86,18 +103,46 @@ export default function RegisterForm() {
               </button>
             </div>
 
+            {/* Checklist de contraseña */}
+            {password && (
+              <ul className="text-sm mt-2 space-y-1">
+                <li className={validations.length ? "text-green-600" : "text-red-500"}>
+                  • Al menos 8 caracteres
+                </li>
+                <li className={validations.number ? "text-green-600" : "text-red-500"}>
+                  • Al menos un número
+                </li>
+                <li className={validations.uppercase ? "text-green-600" : "text-red-500"}>
+                  • Al menos una mayúscula
+                </li>
+                <li className={validations.special ? "text-green-600" : "text-red-500"}>
+                  • Al menos un caracter especial
+                </li>
+              </ul>
+            )}
+
             {/* Confirmar contraseña */}
             <label className="block text-gray-700 mt-4">
               Confirmar contraseña
             </label>
-            <input
-              type="password"
-              placeholder="Repite tu contraseña"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded mt-1 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
-              required
-            />
+            <div className="relative">
+              <input
+                type={showConfirmPassword ? "text" : "password"} // 👀 Usa el nuevo estado
+                placeholder="Repite tu contraseña"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full p-2 border border-gray-300 rounded mt-1 text-gray-700 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showConfirmPassword ? <LuEyeOff /> : <LuEye />}
+              </button>
+            </div>
+
             {!passwordsMatch && confirmPassword && (
               <p className="text-red-500 text-sm mt-1">
                 Las contraseñas no coinciden
