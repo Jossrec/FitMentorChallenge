@@ -17,7 +17,7 @@ import { loadLocalTasks, saveLocalTasks } from "../../utils/storage";
 import Loader from "@/components/Loader";
 import BoardModal from "../../components/BoardModal";
 import { createBoardServer } from "../../usecases/boardService";
-
+import AddTaskInline from "@/components/AddTaskInline";
 
 export default function DashboardPage() {
   const { user, token, loading } = useAuth();
@@ -247,7 +247,7 @@ export default function DashboardPage() {
                 <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
                 {/* Contenedor scrollable */}
                 <div
-                  className={`space-y-2 overflow-y-auto max-h-[62vh] p-2 border-2 border-dashed rounded  ${
+                  className={`space-y-2 overflow-y-auto max-h-[54vh] p-2 border-2 border-dashed rounded  ${
                     snapshot.isDraggingOver ? "bg-blue-50" : ""
                   }`}
                   ref={provided.innerRef}
@@ -291,6 +291,7 @@ export default function DashboardPage() {
                   )}
                   {provided.placeholder}
                 </div>
+                <AddTaskInline status="PENDIENTE" onAdd={addTask} />
               </div>
             )}
           </Droppable>
@@ -303,7 +304,7 @@ export default function DashboardPage() {
 
                 {/* Contenedor scrollable */}
                 <div
-                  className={`space-y-2 overflow-y-auto max-h-[calc(100vh-30vh)] p-2 border-2 border-dashed rounded transition-colors ${
+                  className={`space-y-2 overflow-y-auto max-h-[54vh] p-2 border-2 border-dashed rounded ${
                     snapshot.isDraggingOver ? "bg-blue-50" : ""
                   }`}
                   ref={provided.innerRef}
@@ -347,6 +348,7 @@ export default function DashboardPage() {
                   )}
                   {provided.placeholder}
                 </div>
+                <AddTaskInline status="EN_CURSO" onAdd={addTask} />
               </div>
             )}
           </Droppable>
@@ -359,7 +361,7 @@ export default function DashboardPage() {
 
                 {/* Contenedor scrollable */}
                 <div
-                  className={`space-y-2 overflow-y-auto max-h-[calc(100vh-30vh)] p-2 border-2 border-dashed rounded transition-colors ${
+                  className={`space-y-2 overflow-y-auto max-h-[54vh] p-2 border-2 border-dashed rounded ${
                     snapshot.isDraggingOver ? "bg-blue-50" : ""
                   }`}
                   ref={provided.innerRef}
@@ -403,6 +405,7 @@ export default function DashboardPage() {
                   )}
                   {provided.placeholder}
                 </div>
+                <AddTaskInline status="FINALIZADO" onAdd={addTask} />
               </div>
             )}
           </Droppable>

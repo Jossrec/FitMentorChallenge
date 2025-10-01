@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
         clearToken();
       }
     }
-    setLoading(false); // 👈 cuando termina la lectura inicial
+    setLoading(false);
   }, []);
 
   const login = (userData, jwt) => {

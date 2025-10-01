@@ -15,6 +15,7 @@ export async function createTaskInBoard(boardId, userId, data) {
   });
   if (!board) return null;
 
+  // console.log("DATA AL CREAR:", data);
   const task = await prisma.task.create({
     data: {
       title: data.title,
