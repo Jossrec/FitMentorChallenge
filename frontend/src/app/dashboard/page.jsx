@@ -291,7 +291,7 @@ export default function DashboardPage() {
                   )}
                   {provided.placeholder}
                 </div>
-                <AddTaskInline status="PENDIENTE" onAdd={addTask} />
+                <AddTaskInline status="PENDIENTE"onAdd ={addTask} tasks={tasks}  />
               </div>
             )}
           </Droppable>
@@ -348,7 +348,7 @@ export default function DashboardPage() {
                   )}
                   {provided.placeholder}
                 </div>
-                <AddTaskInline status="EN_CURSO" onAdd={addTask} />
+                <AddTaskInline status="EN_CURSO" onAdd={addTask} tasks={tasks}  />
               </div>
             )}
           </Droppable>
@@ -405,7 +405,7 @@ export default function DashboardPage() {
                   )}
                   {provided.placeholder}
                 </div>
-                <AddTaskInline status="FINALIZADO" onAdd={addTask} />
+                <AddTaskInline status="FINALIZADO" onAdd={addTask} tasks={tasks} />
               </div>
             )}
           </Droppable>
