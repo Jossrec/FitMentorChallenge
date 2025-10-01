@@ -1,11 +1,9 @@
 "use client";
 import { FaBalanceScale, FaUser } from "react-icons/fa";
-import PersonIcon from "@mui/icons-material/Person";
 
 export default function TaskCard({
   idTarea,
   title,
-  asignadoA,
   prioridad,
   puntosHistoria,
   onClick,
@@ -31,12 +29,6 @@ export default function TaskCard({
 
       {/* Título */}
       <p className="font-semibold text-sm mb-1 line-clamp-2 text-gray-700">{title}</p>
-
-      {/* Asignado */}
-      <span className="text-xs text-gray-500 flex items-center">
-        <PersonIcon sx={{ fontSize: 16, marginRight: "4px" }} />
-        {asignadoA || "Sin asignar"}
-      </span>
 
       {/* Prioridad */}
       {prioridad && (

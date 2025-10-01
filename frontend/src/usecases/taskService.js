@@ -1,24 +1,24 @@
 import { api } from "../infrastructure/api";
 
-// Consultar tareas en el server
-export async function fetchTasksServer() {
-  const res = await api.get("/tasks");
+// Consultar tareas de un board
+export async function fetchTasksServer(boardId) {
+  const res = await api.get(`/boards/${boardId}/tasks`);
   return res.data;
 }
 
-// Crear en el server
-export async function createTaskServer(task) {
-  const res = await api.post("/tasks", task);
+// Crear tarea en un board
+export async function createTaskServer(boardId, task) {
+  const res = await api.post(`/boards/${boardId}/tasks`, task);
   return res.data;
 }
 
-// Actualizar en el server
+// Actualizar tarea (usa PATCH, no PUT)
 export async function updateTaskServer(id, patch) {
-  const res = await api.put(`/tasks/${id}`, patch);
+  const res = await api.patch(`/tasks/${id}`, patch);
   return res.data;
 }
 
-// Eliminar en el server
+// Eliminar tarea
 export async function deleteTaskServer(id) {
   const res = await api.delete(`/tasks/${id}`);
   return res.data;

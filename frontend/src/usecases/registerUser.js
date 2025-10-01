@@ -1,8 +1,11 @@
 import { api } from "../infrastructure/api";
+import { saveToken } from "../utils/storage";
 
 export async function registerUser(email, password) {
   try {
     const res = await api.post("/register", { email, password });
+    saveToken(res.data.token);
+
     return {
       token: res.data.token,
       user: res.data.user,

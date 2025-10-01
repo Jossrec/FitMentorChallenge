@@ -37,7 +37,6 @@ export default function RegisterForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canSubmit) return;
-
     try {
       const { token, user } = await registerUser(email, password);
       login(user, token);

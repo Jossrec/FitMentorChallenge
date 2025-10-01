@@ -18,18 +18,18 @@ export function clearToken() {
 }
 
 
-// Guardar y leer tareas
-export const loadLocalTasks = () => {
+// Guardar y leer tareas de un board específico
+export const loadLocalTasks = (boardId) => {
   if (typeof window === "undefined") return [];
   try {
-    return JSON.parse(localStorage.getItem("tasks") || "[]");
+    return JSON.parse(localStorage.getItem(`tasks_${boardId}`) || "[]");
   } catch {
     return [];
   }
 };
 
-export const saveLocalTasks = (tasks) => {
+export const saveLocalTasks = (boardId, tasks) => {
   if (typeof window !== "undefined") {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+    localStorage.setItem(`tasks_${boardId}`, JSON.stringify(tasks));
   }
 };

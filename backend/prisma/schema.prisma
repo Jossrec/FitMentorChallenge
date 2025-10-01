@@ -7,16 +7,32 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// Usuario para login
+// --- Usuario ---
 model User {
   id        Int      @id @default(autoincrement())
   email     String   @unique
-  password  String   // guardada encriptada con bcrypt
+  password  String   // hash bcrypt
   createdAt DateTime @default(now())
-  tasks     Task[]
+
+  boards    Board[] 
 }
 
-// Tarea del tablero
+// --- Tablero ---
+model Board {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+
+  ownerId Int
+  owner   User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  tasks   Task[]
+
+  @@index([ownerId])
+  @@unique([ownerId, name])
+}
+
+// --- Tarea ---
 model Task {
   id          Int      @id @default(autoincrement())
   title       String
@@ -27,11 +43,12 @@ model Task {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  userId Int?
-  user   User?    @relation(fields: [userId], references: [id])
+  boardId Int
+  board   Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@index([boardId])
 }
 
-// Estado de las tareas
 enum Status {
   PENDIENTE
   EN_CURSO
