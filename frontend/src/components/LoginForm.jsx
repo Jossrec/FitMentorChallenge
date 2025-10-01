@@ -56,27 +56,6 @@ export default function LoginForm() {
             Iniciar sesión
           </h1>
 
-          {/* BOTÓN GOOGLE */}
-          <button
-            onClick={handleGoogleLogin}
-            type="button"
-            className="w-full flex items-center justify-center gap-2 border border-gray-300 text-gray-800 font-medium py-2 rounded hover:bg-gray-100 transition mb-4"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Ingresar o registrarse con Google
-          </button>
-
-          {/* Separador con O */}
-          <div className="flex items-center mb-6">
-            <hr className="flex-grow border-gray-300" />
-            <span className="px-3 text-gray-500 font-semibold">O</span>
-            <hr className="flex-grow border-gray-300" />
-          </div>
-
           {/* Error */}
           {error && (
             <p className="bg-red-100 text-red-600 text-sm p-2 rounded mb-4">
