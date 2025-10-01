@@ -15,6 +15,8 @@ import {
 import { fetchBoardsServer } from "../../usecases/boardService";
 import { loadLocalTasks, saveLocalTasks } from "../../utils/storage";
 import Loader from "@/components/Loader";
+import BoardModal from "../../components/BoardModal";
+import { createBoardServer } from "../../usecases/boardService";
 
 
 export default function DashboardPage() {
@@ -26,6 +28,8 @@ export default function DashboardPage() {
   const [selectedTask, setSelectedTask] = useState(null);
   const [boards, setBoards] = useState([]);
   const [selectedBoardId, setSelectedBoardId] = useState(null);
+  const [showBoardModal, setShowBoardModal] = useState(false);
+
 
   
 
@@ -173,6 +177,15 @@ export default function DashboardPage() {
     }
   };
 
+  const handleCreateBoard = async (name) => {
+  try {
+    const newBoard = await createBoardServer(name); // POST al backend
+    setBoards((prev) => [newBoard, ...prev]); // agregar al inicio
+    setSelectedBoardId(newBoard.id); // seleccionar tablero recién creado
+  } catch (err) {
+    console.error("Error creando tablero:", err.message);
+  }
+};
 
   
   if (loading||!user || !token) {
@@ -191,7 +204,13 @@ export default function DashboardPage() {
         <div className="flex items-center space-x-4">
           <select
             value={selectedBoardId ?? ""}
-            onChange={(e) => setSelectedBoardId(Number(e.target.value))}
+            onChange={(e) => {
+              if (e.target.value === "create") {
+                setShowBoardModal(true); // abre modal
+              } else {
+                setSelectedBoardId(Number(e.target.value));
+              }
+            }}
             className="border rounded px-2 py-1 text-gray-500"
           >
             {boards.map((b) => (
@@ -199,6 +218,7 @@ export default function DashboardPage() {
                 {b.name}
               </option>
             ))}
+            <option value="create">+ Crear tablero</option>
           </select>
           <button
             onClick={() => {
@@ -212,176 +232,174 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
-  {/* Kanban con Drag & Drop */}
-  <DragDropContext onDragEnd={onDragEnd}>
-    <div className="grid grid-cols-3 gap-4 p-6 items-start">
-      {/* Pendiente */}
-      <Droppable droppableId="PENDIENTE">
-        {(provided, snapshot) => (
-          <div className="bg-white shadow rounded-lg p-4 h-auto">
-            <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
-            {/* Contenedor scrollable */}
-            <div
-              className={`space-y-2 overflow-y-auto max-h-[62vh] p-2 border-2 border-dashed rounded  ${
-                snapshot.isDraggingOver ? "bg-blue-50" : ""
-              }`}
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {tasks.filter((t) => t.status === "PENDIENTE").length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">
-                  Sin tareas, arrastra para cambiar de estado
-                </p>
-              ) : (
-                tasks
-                  .filter((t) => t.status === "PENDIENTE")
-                  .map((t, index) => (
-                    <Draggable
-                      key={t.id}
-                      draggableId={String(t.id)}
-                      index={index}
-                    >
-                      {(prov) => (
-                        <div
-                          ref={prov.innerRef}
-                          {...prov.draggableProps}
-                          {...prov.dragHandleProps}
+      {/* Kanban con Drag & Drop */}
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="grid grid-cols-3 gap-4 p-6 items-start">
+          {/* Pendiente */}
+          <Droppable droppableId="PENDIENTE">
+            {(provided, snapshot) => (
+              <div className="bg-white shadow rounded-lg p-4 h-auto">
+                <h3 className="font-bold mb-3 text-red-600">Pendiente</h3>
+                {/* Contenedor scrollable */}
+                <div
+                  className={`space-y-2 overflow-y-auto max-h-[62vh] p-2 border-2 border-dashed rounded  ${
+                    snapshot.isDraggingOver ? "bg-blue-50" : ""
+                  }`}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {tasks.filter((t) => t.status === "PENDIENTE").length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-6">
+                      Sin tareas, arrastra para cambiar de estado
+                    </p>
+                  ) : (
+                    tasks
+                      .filter((t) => t.status === "PENDIENTE")
+                      .map((t, index) => (
+                        <Draggable
+                          key={t.id}
+                          draggableId={String(t.id)}
+                          index={index}
                         >
-                          <TaskCard
-                            idTarea={`T-${t.id}`}
-                            title={t.title}
-                            prioridad={t.priority}
-                            puntosHistoria={t.storyPoints}
-                            onClick={() => {
-                              setSelectedTask(t);
-                              setMode("edit");
-                              setShowModal(true);
-                            }}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))
-              )}
-              {provided.placeholder}
-            </div>
-          </div>
-        )}
-      </Droppable>
+                          {(prov) => (
+                            <div
+                              ref={prov.innerRef}
+                              {...prov.draggableProps}
+                              {...prov.dragHandleProps}
+                            >
+                              <TaskCard
+                                idTarea={`T-${t.id}`}
+                                title={t.title}
+                                prioridad={t.priority}
+                                puntosHistoria={t.storyPoints}
+                                onClick={() => {
+                                  setSelectedTask(t);
+                                  setMode("edit");
+                                  setShowModal(true);
+                                }}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))
+                  )}
+                  {provided.placeholder}
+                </div>
+              </div>
+            )}
+          </Droppable>
 
-      {/* En curso */}
-      <Droppable droppableId="EN_CURSO">
-        {(provided, snapshot) => (
-          <div className="bg-white shadow rounded-lg p-4 h-auto">
-            <h3 className="font-bold mb-3 text-yellow-600">En curso</h3>
+          {/* En curso */}
+          <Droppable droppableId="EN_CURSO">
+            {(provided, snapshot) => (
+              <div className="bg-white shadow rounded-lg p-4 h-auto">
+                <h3 className="font-bold mb-3 text-yellow-600">En curso</h3>
 
-            {/* Contenedor scrollable */}
-            <div
-              className={`space-y-2 overflow-y-auto max-h-[calc(100vh-30vh)] p-2 border-2 border-dashed rounded transition-colors ${
-                snapshot.isDraggingOver ? "bg-blue-50" : ""
-              }`}
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {tasks.filter((t) => t.status === "EN_CURSO").length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">
-                  Sin tareas, arrastra para cambiar de estado
-                </p>
-              ) : (
-                tasks
-                  .filter((t) => t.status === "EN_CURSO")
-                  .map((t, index) => (
-                    <Draggable
-                      key={t.id}
-                      draggableId={String(t.id)}
-                      index={index}
-                    >
-                      {(prov) => (
-                        <div
-                          ref={prov.innerRef}
-                          {...prov.draggableProps}
-                          {...prov.dragHandleProps}
+                {/* Contenedor scrollable */}
+                <div
+                  className={`space-y-2 overflow-y-auto max-h-[calc(100vh-30vh)] p-2 border-2 border-dashed rounded transition-colors ${
+                    snapshot.isDraggingOver ? "bg-blue-50" : ""
+                  }`}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {tasks.filter((t) => t.status === "EN_CURSO").length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-6">
+                      Sin tareas, arrastra para cambiar de estado
+                    </p>
+                  ) : (
+                    tasks
+                      .filter((t) => t.status === "EN_CURSO")
+                      .map((t, index) => (
+                        <Draggable
+                          key={t.id}
+                          draggableId={String(t.id)}
+                          index={index}
                         >
-                          <TaskCard
-                            idTarea={`T-${t.id}`}
-                            title={t.title}
-                            prioridad={t.priority}
-                            puntosHistoria={t.storyPoints}
-                            onClick={() => {
-                              setSelectedTask(t);
-                              setMode("edit");
-                              setShowModal(true);
-                            }}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))
-              )}
-              {provided.placeholder}
-            </div>
-          </div>
-        )}
-      </Droppable>
+                          {(prov) => (
+                            <div
+                              ref={prov.innerRef}
+                              {...prov.draggableProps}
+                              {...prov.dragHandleProps}
+                            >
+                              <TaskCard
+                                idTarea={`T-${t.id}`}
+                                title={t.title}
+                                prioridad={t.priority}
+                                puntosHistoria={t.storyPoints}
+                                onClick={() => {
+                                  setSelectedTask(t);
+                                  setMode("edit");
+                                  setShowModal(true);
+                                }}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))
+                  )}
+                  {provided.placeholder}
+                </div>
+              </div>
+            )}
+          </Droppable>
 
-      {/* Finalizado */}
-      <Droppable droppableId="FINALIZADO">
-        {(provided, snapshot) => (
-          <div className="bg-white shadow rounded-lg p-4 flex flex-col">
-            <h3 className="font-bold mb-3 text-green-600">Finalizado</h3>
+          {/* Finalizado */}
+          <Droppable droppableId="FINALIZADO">
+            {(provided, snapshot) => (
+              <div className="bg-white shadow rounded-lg p-4 flex flex-col">
+                <h3 className="font-bold mb-3 text-green-600">Finalizado</h3>
 
-            {/* Contenedor scrollable */}
-            <div
-              className={`space-y-2 overflow-y-auto max-h-[calc(100vh-30vh)] p-2 border-2 border-dashed rounded transition-colors ${
-                snapshot.isDraggingOver ? "bg-blue-50" : ""
-              }`}
-              ref={provided.innerRef}
-              {...provided.droppableProps}
-            >
-              {tasks.filter((t) => t.status === "FINALIZADO").length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6">
-                  Sin tareas, arrastra para cambiar de estado
-                </p>
-              ) : (
-                tasks
-                  .filter((t) => t.status === "FINALIZADO")
-                  .map((t, index) => (
-                    <Draggable
-                      key={t.id}
-                      draggableId={String(t.id)}
-                      index={index}
-                    >
-                      {(prov) => (
-                        <div
-                          ref={prov.innerRef}
-                          {...prov.draggableProps}
-                          {...prov.dragHandleProps}
+                {/* Contenedor scrollable */}
+                <div
+                  className={`space-y-2 overflow-y-auto max-h-[calc(100vh-30vh)] p-2 border-2 border-dashed rounded transition-colors ${
+                    snapshot.isDraggingOver ? "bg-blue-50" : ""
+                  }`}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {tasks.filter((t) => t.status === "FINALIZADO").length === 0 ? (
+                    <p className="text-sm text-gray-400 text-center py-6">
+                      Sin tareas, arrastra para cambiar de estado
+                    </p>
+                  ) : (
+                    tasks
+                      .filter((t) => t.status === "FINALIZADO")
+                      .map((t, index) => (
+                        <Draggable
+                          key={t.id}
+                          draggableId={String(t.id)}
+                          index={index}
                         >
-                          <TaskCard
-                            idTarea={`T-${t.id}`}
-                            title={t.title}
-                            prioridad={t.priority}
-                            puntosHistoria={t.storyPoints}
-                            onClick={() => {
-                              setSelectedTask(t);
-                              setMode("edit");
-                              setShowModal(true);
-                            }}
-                          />
-                        </div>
-                      )}
-                    </Draggable>
-                  ))
-              )}
-              {provided.placeholder}
-            </div>
-          </div>
-        )}
-      </Droppable>
-    </div>
-  </DragDropContext>
-
-
+                          {(prov) => (
+                            <div
+                              ref={prov.innerRef}
+                              {...prov.draggableProps}
+                              {...prov.dragHandleProps}
+                            >
+                              <TaskCard
+                                idTarea={`T-${t.id}`}
+                                title={t.title}
+                                prioridad={t.priority}
+                                puntosHistoria={t.storyPoints}
+                                onClick={() => {
+                                  setSelectedTask(t);
+                                  setMode("edit");
+                                  setShowModal(true);
+                                }}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))
+                  )}
+                  {provided.placeholder}
+                </div>
+              </div>
+            )}
+          </Droppable>
+        </div>
+      </DragDropContext>
       {showModal && (
         <TaskModal
           mode={mode}
@@ -390,6 +408,12 @@ export default function DashboardPage() {
           onSave={addTask}
           onUpdate={updateTask}
           onDelete={deleteTask}
+        />
+      )}
+      {showBoardModal && (
+        <BoardModal
+          onClose={() => setShowBoardModal(false)}
+          onCreate={handleCreateBoard}
         />
       )}
     </div>

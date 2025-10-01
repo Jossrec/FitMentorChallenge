@@ -94,7 +94,7 @@ export default function TaskModal({
               onClick={() => {
                 onDelete(task.id)
                 onClose();
-              }}
+            }}
               className="px-4 py-2 rounded border border-red-600 bg-red-100 text-red-600 hover:bg-red-200"
             >
               Eliminar
