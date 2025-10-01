@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useAuth } from "../../context/AuthContext";
@@ -13,10 +14,12 @@ import {
 } from "../../usecases/taskService";
 import { fetchBoardsServer } from "../../usecases/boardService";
 import { loadLocalTasks, saveLocalTasks } from "../../utils/storage";
+import Loader from "@/components/Loader";
 
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, token, loading } = useAuth();
+  const router = useRouter();
   const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState("create"); // "create" o "edit"
@@ -24,6 +27,14 @@ export default function DashboardPage() {
   const [boards, setBoards] = useState([]);
   const [selectedBoardId, setSelectedBoardId] = useState(null);
 
+  
+
+  // si no hay sesión → login
+  useEffect(() => {
+    if (!loading && (!token || !user)) {
+      router.push("/login");
+    }
+  }, [loading, token, user, router]);
 
   // Guardar cambios en localStorage
   useEffect(() => {
@@ -39,13 +50,14 @@ export default function DashboardPage() {
         const b = await fetchBoardsServer();
         setBoards(b);
         if (b.length > 0) {
-          setSelectedBoardId(b[0].id); // por defecto el primero
+          setSelectedBoardId(b[0].id);
         }
       } catch (err) {
         console.error("Error cargando boards:", err.message);
       }
     })();
   }, []);
+
 
   // Cargar tareas: primero local, luego server
   useEffect(() => {
@@ -162,6 +174,13 @@ export default function DashboardPage() {
   };
 
 
+  
+  if (loading||!user || !token) {
+  return <Loader/>
+}
+
+
+
   return (
     <div className="min-h-screen bg-gray-100">
       <Topbar />
@@ -173,7 +192,7 @@ export default function DashboardPage() {
           <select
             value={selectedBoardId ?? ""}
             onChange={(e) => setSelectedBoardId(Number(e.target.value))}
-            className="border rounded px-2 py-1"
+            className="border rounded px-2 py-1 text-gray-500"
           >
             {boards.map((b) => (
               <option key={b.id} value={b.id}>

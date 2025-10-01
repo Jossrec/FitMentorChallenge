@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { registerUser } from "../usecases/registerUser";
 import { useRouter } from "next/navigation";
 import { LuEye, LuEyeOff } from "react-icons/lu";
+import Loader from "./Loader";
 
 export default function RegisterForm() {
   const { login } = useAuth();
@@ -15,7 +16,7 @@ export default function RegisterForm() {
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 👀 Nuevo estado
-
+  const [loading, setLoading] = useState(false);
   const passwordsMatch = password === confirmPassword;
 
   // Validaciones
@@ -46,6 +47,10 @@ export default function RegisterForm() {
       setError(err.message);
     }
   };
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="flex h-screen bg-white">

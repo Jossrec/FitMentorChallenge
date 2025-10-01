@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../usecases/loginUser";
 import { useRouter } from "next/navigation";
 import { LuEye, LuEyeOff } from "react-icons/lu";
+import Loader from "./Loader";
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -13,7 +14,7 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,6 +25,8 @@ export default function LoginForm() {
     } catch (err) {
       console.error(err);
       setError("Credenciales inválidas");
+    } finally {
+    setLoading(false);
     }
   };
 
@@ -32,6 +35,10 @@ export default function LoginForm() {
     console.log("Login con Google (pendiente de implementar)");
   };
 
+  if (loading) {
+    return <Loader />;
+  }
+  
   return (
     <div className="flex h-screen bg-white">
       {/* Columna izquierda: formulario */}
@@ -110,22 +117,6 @@ export default function LoginForm() {
               >
                 {showPassword ? <LuEyeOff /> : <LuEye />}
               </button>
-            </div>
-
-            {/* Remember me + link */}
-            <div className="flex items-center justify-between mt-4">
-              <label className="flex items-center text-gray-700">
-                <input
-                  type="checkbox"
-                  className="mr-2"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                Recuérdame
-              </label>
-              <a href="#" className="text-orange-500 text-sm">
-                ¿Olvidaste tu contraseña?
-              </a>
             </div>
 
             {/* Botones */}
