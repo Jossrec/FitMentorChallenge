@@ -25,11 +25,12 @@ export default function DashboardPage() {
   const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [mode, setMode] = useState("create"); // "create" o "edit"
-  const [selectedTask, setSelectedTask] = useState(null);
   const [boards, setBoards] = useState([]);
   const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [showBoardModal, setShowBoardModal] = useState(false);
   const selectedBoard = boards.find((b) => b.id === selectedBoardId);
+  const [selectedTask, setSelectedTask] = useState(null);
+
 
 
 
@@ -48,6 +49,15 @@ export default function DashboardPage() {
       saveLocalTasks(selectedBoardId, tasks);
     }
   }, [selectedBoardId, tasks]);
+
+  useEffect(() => {
+    if (selectedTask) {
+      const updated = tasks.find((t) => t.title === selectedTask.title);
+      if (updated && updated.id !== selectedTask.id) {
+        setSelectedTask(updated); // reemplaza el tmpId por el definitivo
+      }
+    }
+  }, [tasks]);
 
   // Cargar boards al iniciar
   useEffect(() => {

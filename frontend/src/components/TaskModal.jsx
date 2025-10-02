@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import Loader from "./Loader"; // tu componente loader
 
 export default function TaskModal({
   onClose,
@@ -15,6 +16,7 @@ export default function TaskModal({
   const [priority, setPriority] = useState("Media");
   const [storyPoints, setStoryPoints] = useState(1);
   const [error, setError] = useState(null);
+  const [isPending, setIsPending] = useState(false);
 
   // Si es edición, rellenamos con datos de la tarea
   useEffect(() => {
@@ -23,22 +25,38 @@ export default function TaskModal({
       setDescription(task.description || "");
       setPriority(task.priority || "Media");
       setStoryPoints(task.storyPoints || 1);
+
+      // si el id es temporal → bloquear
+      if (String(task.id).startsWith("tmp-")) {
+        setIsPending(true);
+      } else {
+        setIsPending(false);
+      }
     }
   }, [mode, task]);
 
+  // watcher: cuando llegue el id real desde tasks, desbloquear
+  useEffect(() => {
+    if (isPending && task?.id && !String(task.id).startsWith("tmp-")) {
+      setIsPending(false);
+    }
+  }, [tasks, task, isPending]);
+
   const handleAction = () => {
+    if (isPending) return; // no hacer nada mientras está pendiente
     if (!title.trim()) return;
-    // Validar duplicados
+
     const exists = tasks.some(
       (t) =>
         t.title.trim().toLowerCase() === title.trim().toLowerCase() &&
-        t.id !== task?.id // permitir si es edición de la misma tarea
+        t.id !== task?.id
     );
     if (exists) {
       setError("Ya existe una tarea con ese nombre en este tablero.");
-    return;
+      return;
     }
-    setError(null); // limpiar error si todo bien
+
+    setError(null);
 
     const newTask = {
       ...task,
@@ -49,6 +67,7 @@ export default function TaskModal({
       storyPoints,
       status: task?.status || "PENDIENTE",
     };
+
     if (mode === "create") {
       onSave(newTask);
     } else {
@@ -59,7 +78,12 @@ export default function TaskModal({
 
   return (
     <div className="fixed inset-0 backdrop-brightness-60 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+      <div className="bg-white p-6 rounded shadow-lg w-full max-w-md relative">
+        {isPending && (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">
+            <Loader />
+          </div>
+        )}
         <h2 className="text-lg font-bold mb-4 text-gray-600">
           {mode === "create" ? "Crear nueva Tarea" : "Editar Tarea"}
         </h2>
@@ -68,13 +92,17 @@ export default function TaskModal({
             {error}
           </p>
         )}
-        <label className="block mb-2 font-semibold text-gray-600">Título *<span className="text-red-500 text-xs "> (campo obligatorio)</span></label>
+
+        <label className="block mb-2 font-semibold text-gray-600">
+          Título *<span className="text-red-500 text-xs "> (campo obligatorio)</span>
+        </label>
         <input
           type="text"
           placeholder="Título"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border p-2 rounded mb-3 text-gray-600 placeholder-gray-400"
+          disabled={isPending}
+          className="w-full border p-2 rounded mb-3 text-gray-600 placeholder-gray-400 disabled:bg-gray-100"
         />
 
         <label className="block mb-2 font-semibold text-gray-600">Descripción</label>
@@ -82,14 +110,16 @@ export default function TaskModal({
           placeholder="Descripción"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full border p-2 rounded mb-3 text-gray-600 placeholder-gray-400"
+          disabled={isPending}
+          className="w-full border p-2 rounded mb-3 text-gray-600 placeholder-gray-400 disabled:bg-gray-100"
         />
 
         <label className="block mb-2 font-semibold text-gray-600">Prioridad</label>
         <select
           value={priority}
           onChange={(e) => setPriority(e.target.value)}
-          className="w-full border p-2 rounded mb-3 text-gray-600"
+          disabled={isPending}
+          className="w-full border p-2 rounded mb-3 text-gray-600 disabled:bg-gray-100"
         >
           <option>Alta</option>
           <option>Media</option>
@@ -102,18 +132,21 @@ export default function TaskModal({
           value={storyPoints}
           min="1"
           onChange={(e) => setStoryPoints(Number(e.target.value))}
-          className="w-full border p-2 rounded mb-4 text-gray-600"
+          disabled={isPending}
+          className="w-full border p-2 rounded mb-4 text-gray-600 disabled:bg-gray-100"
         />
 
         <div className="flex justify-between items-center">
-          {/* Botón eliminar solo en modo edición */}
           {mode === "edit" && (
             <button
               onClick={() => {
-                onDelete(task.id)
-                onClose();
-            }}
-              className="px-4 py-2 rounded border border-red-600 bg-red-100 text-red-600 hover:bg-red-200"
+                if (!isPending) {
+                  onDelete(task.id);
+                  onClose();
+                }
+              }}
+              disabled={isPending}
+              className="px-4 py-2 rounded border border-red-600 bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50"
             >
               Eliminar
             </button>
@@ -128,7 +161,8 @@ export default function TaskModal({
             </button>
             <button
               onClick={handleAction}
-              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              disabled={isPending}
+              className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
             >
               {mode === "create" ? "Crear tarea" : "Guardar cambios"}
             </button>
