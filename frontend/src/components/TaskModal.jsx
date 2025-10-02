@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import Loader from "./Loader"; // tu componente loader
+import Loader from "./Loader"; 
 
 export default function TaskModal({
   onClose,

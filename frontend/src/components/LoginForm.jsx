@@ -18,6 +18,7 @@ export default function LoginForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const { token, user } = await loginUser(email, password);
       login(user, token);
@@ -30,13 +31,8 @@ export default function LoginForm() {
     }
   };
 
-  // Placeholder para Google login
-  const handleGoogleLogin = () => {
-    console.log("Login con Google (pendiente de implementar)");
-  };
-
   if (loading) {
-    return <Loader />;
+    return <Loader fullscreen />;
   }
   
   return (

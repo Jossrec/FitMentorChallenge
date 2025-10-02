@@ -15,7 +15,7 @@ export default function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // 👀 Nuevo estado
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
   const [loading, setLoading] = useState(false);
   const passwordsMatch = password === confirmPassword;
 
@@ -37,6 +37,7 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     if (!canSubmit) return;
     try {
       const { token, user } = await registerUser(email, password);
@@ -45,11 +46,13 @@ export default function RegisterForm() {
     } catch (err) {
       console.error("Error en registro:", err.message);
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   if (loading) {
-    return <Loader />;
+    return <Loader fullscreen/>;
   }
 
   return (
@@ -131,7 +134,7 @@ export default function RegisterForm() {
             </label>
             <div className="relative">
               <input
-                type={showConfirmPassword ? "text" : "password"} // 👀 Usa el nuevo estado
+                type={showConfirmPassword ? "text" : "password"} 
                 placeholder="Repite tu contraseña"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
