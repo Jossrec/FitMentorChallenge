@@ -6,6 +6,7 @@ El objetivo fue construir un tablero similar al de Jira, con autenticación, per
 🔗 **Demo en producción**: [fitmentorchallenge.pages.dev](https://fitmentorchallenge.pages.dev/login)
 
 ---
+<img width="1920" height="1080" alt="Arquitectura KanbanApp" src="https://github.com/user-attachments/assets/29eb4a51-bf93-44ea-b39e-613ea928da11" />
 
 ## ✨ Características principales
 - **Autenticación de usuarios** mediante JWT (con persistencia de sesión).  
