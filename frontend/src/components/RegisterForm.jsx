@@ -63,7 +63,7 @@ export default function RegisterForm() {
           {/* Logo */}
           <div className="flex items-center">
             <img
-              src="/kanbanlogo.png"
+              src="/kanbanLogo.png"
               alt="Logo"
               className="w-30 h-20 mr-30 object-contain"
             />
