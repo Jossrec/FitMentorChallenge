@@ -30,31 +30,7 @@ export default function DashboardPage() {
   const [showBoardModal, setShowBoardModal] = useState(false);
   const selectedBoard = boards.find((b) => b.id === selectedBoardId);
   const [selectedTask, setSelectedTask] = useState(null);
-  const [boardLoading, setBoardLoading] = useState(false);
 
-
-
-  useEffect(() => {
-    if (!selectedBoardId) return;
-
-    setBoardLoading(true); 
-
-    // 1. hidratar desde localStorage
-    const localTasks = loadLocalTasks(selectedBoardId);
-    setTasks(localTasks);
-
-    // 2. luego traer desde el server y reemplazar
-    (async () => {
-      try {
-        const serverTasks = await fetchTasksServer(selectedBoardId);
-        setTasks(serverTasks);
-      } catch (err) {
-        console.warn("No se pudo traer tareas del server:", err.message);
-      } finally {
-        setBoardLoading(false); 
-      }
-    })();
-  }, [selectedBoardId]);
 
 
 
@@ -97,6 +73,29 @@ export default function DashboardPage() {
       }
     })();
   }, []);
+
+
+  // Cargar tareas: primero local, luego server
+  useEffect(() => {
+    if (!selectedBoardId) return;
+
+    // 1. hidratar desde localStorage
+    const localTasks = loadLocalTasks(selectedBoardId);
+    setTasks(localTasks);
+
+    // 2. luego traer desde el server y reemplazar
+    (async () => {
+      try {
+        const serverTasks = await fetchTasksServer(selectedBoardId);
+        setTasks(serverTasks);
+      } catch (err) {
+        console.warn("No se pudo traer tareas del server:", err.message);
+      }
+    })();
+  }, [selectedBoardId]);
+
+
+  
 
   // === Crear tarea
   const addTask = async (task) => {
@@ -207,9 +206,6 @@ export default function DashboardPage() {
   return <Loader fullscreen/>
 }
 
-if (boardLoading) {
-  return <Loader fullscreen />;
-}
 
 
   return (
