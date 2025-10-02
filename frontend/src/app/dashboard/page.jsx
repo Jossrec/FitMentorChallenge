@@ -203,7 +203,7 @@ export default function DashboardPage() {
 
   
   if (loading||!user || !token) {
-  return <Loader/>
+  return <Loader fullscreen/>
 }
 
 
